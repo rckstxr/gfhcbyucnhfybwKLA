@@ -1,0 +1,24 @@
+<host ip="172.16.0.10" host_stop_time="2021-10-03T18:46:16" host_start_time="2021-10-03T18:23:06" start_time="2021-10-03T18:23:01" task="15" host_uid="3" scan="93" fqdn="dc.domain.ru" stop_time="2021-10-03T19:08:05" primary="172.16.0.10" exitcode="0" scan_status="1" netbios="DC">
+
+
+<param/>
+<param_list/></vulner>
+<vulner id="413949" level="1" status="0">
+<param/>
+<param_list/></vulner>
+<vulner id="413957" level="5" status="0">
+
+
+<vulner id="CVE-2016-6511">
+<title>Отказ в обслуживании</title>
+<short_description>Уязвимость позволяет злоумышленнику вызвать отказ в обслуживании (зацикливание диссектора OpenFlow).</short_description>
+<description>Уязвимость в epan/proto.c в Wireshark позволяет злоумышленникам, действующим удаленно, вызвать отказ в обслуживании (зацикливание диссектора OpenFlow) при помощи специально сформированных пакетов.</description>
+<how_to_fix>Для устранения уязвимости необходимо установить последнюю версию продукта, соответствующую используемой платформе. Необходимую информацию можно получить по адресу:
+http://www.wireshark.org/</how_to_fix>
+<links>http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6511
+https://www.wireshark.org/security/wnpa-sec-2016-47.html 
+</links>
+<publication_date>2016-08-06</publication_date>
+<cvss temp_score="3.2" base_score="4.3" temp_score_decomp="(AV:N/AC:M/Au:N/C:N/I:N/A:P/E:U/RL:OF/RC:C)" base_score_decomp="(AV:N/AC:M/Au:N/C:N/I:N/A:P)"/>
+<cvss3 temp_score="5.2" base_score="5.9" temp_score_decomp="(CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H/E:U/RL:O/RC:C)" base_score_decomp="(CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H)"/>
+<global_id name="CVE" value="CVE-2016-6511"/></vulner>
