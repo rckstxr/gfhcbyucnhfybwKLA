@@ -1,0 +1,15 @@
+import requests
+import re
+import csv
+import urllib3
+
+f = input("file CSV: ")
+with open (f, 'r') as input_list:
+	cve_list = csv.reader(input_list)
+	for row in cve_list:
+		url_to_KLA = 'https://threats.kaspersky.com/ru/vulnerability/' + row[0]
+		urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+		response = requests.get(url_to_KLA, verify=False)
+		KLA_number = re.findall(r'KLA\d*[^\W]', response.text)
+		KLA_name = re.findall(r'KLA\d*[^\W] .*[^\W]', response.text)
+		discovery_date = re.findall(r'<td>\d\d/\d\d/\d\d\d\d</td>', response.text)
