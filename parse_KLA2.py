@@ -1,16 +1,16 @@
 #! /usr/bin/python
-
-# Potom zasyny B requements.txt
-# pip3 install json
-
+'''
+Допилить хостнэймы
+'''
 import requests
 from bs4 import BeautifulSoup
 import json
 import urllib3
 import re
+import sys
+import lxml.etree as ET
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 def parse_kla(KLA):  #  Теперь точно работает классно
     cve_id = []
@@ -25,8 +25,11 @@ def parse_kla(KLA):  #  Теперь точно работает классно
             cve_id.append(buff)
     return cve_id
 
-def cve_replace(cve): #Допилить if на CVSSv3 и CVSSv2, а так работает классно
+def cve_replace(cve, IP): # Допилить if на CVSSv3 и CVSSv2, а так работает классно
     API = 'API'
+    if(API == 'API'):
+    	print(f'Ключ API')
+    	exit()
     url = 'https://services.nvd.nist.gov/rest/json/cve/1.0/' + cve + API
     response = requests.get(url, verify=False)
     parse_text = response.json()
@@ -40,36 +43,75 @@ def cve_replace(cve): #Допилить if на CVSSv3 и CVSSv2, а так ра
             solution = 'Подробная информация: ' + solutions['url']
     vector = parse_text['result']['CVE_Items'][0]['impact']['baseMetricV3']['cvssV3']['vectorString']
     score = parse_text['result']['CVE_Items'][0]['impact']['baseMetricV3']['cvssV3']['baseScore']
-    print(f'\n\n{cve}')
-    print(f'Описание:\n{description}')
-    print(f'{solution}')
-    print(f'CVSSv3 Score: {score}')
-    print(f'CVSSv3 vector: {vector}')
+    
+    print(f'{cve}', file = fout)
+    print(f'Описание:\n{description}', file = fout)
+    print(f'{solution}', file = fout)
+    print(f'CVSSv3 Score: {score}', file = fout)
+    print(f'CVSSv3 vector: {vector}\n', file = fout)
+    cve3 = str(cve)
+    vec = str(vector)
+    vector1 = '(' + vec + ')'
+    tree = ET.parse('1.xml')
+    root = tree.getroot()
+    val = str(IP)
+    for elem in root[2]:
+        elem.set('ip', val)
+    
+    for elem in root[3]:
+        elem[0].text = cve3
+        elem[1].text = str(description)
+        elem[2].text = str(description)
+        elem[3].text = str(solution)
+        elem[4].text = ''
+        elem[7].attrib['temp_score'] = str(score)
+        elem[7].attrib['base_score'] = str(score)
+        elem[7].attrib['temp_score_decomp'] = vector1
+        elem[7].attrib['base_score_decomp'] = vector1
+   
+    tree.write(val + '-' + cve3 + '.xml')
 
-def read2list(file):
+def read2list_kla(file):
     kla_line = []
-    ip_line = []
     with open(file, 'r', encoding="utf-8") as file:
         for i in file:
             buff = i.strip()
             regex_kla = re.findall(r'KLA\d{4,7}', buff)
-            regex_ip = re.findall(r'\d{1,3}[.]\d{1,3}[.]\d{1,3}[.]\d{1,3}', buff)
-            #print(regex)
             if (regex_kla != None):
                 kla_line.append(regex_kla)
+    return kla_line
+    
+def read2list_ip(file):
+    ip_line = []
+    with open(file, 'r', encoding="utf-8") as file:
+        for i in file:
+            buff = i.strip()
+            regex_ip = re.findall(r'\d{1,3}[.]\d{1,3}[.]\d{1,3}[.]\d{1,3}', buff)
             if (regex_ip != None):
                 ip_line.append(regex_ip)
-    return kla_line
     return ip_line
 
 
 if __name__ == "__main__":
-
-    KLA = 'KLA11002'  # Допилить чтение из файла export_RV_JSON.py
-    buff = parse_kla(KLA)
-    for cve in buff:
-        cve_replace(cve)
-    '''
-    file = '1.txt'
-    print(read2list(file))
-    '''
+    if len(sys.argv) == 1:
+        print("Error!\nUsage: python3 %s " % sys.argv[0] + "file.txt")
+        exit()
+    
+    try:
+        fout = open('output.txt', 'w')
+        file_in = str(sys.argv[1])
+        kla_list = read2list_kla(file_in)
+        ip_list = read2list_ip(file_in)
+        for n,i in enumerate(kla_list, start = 0):
+    	    list_to_str_kla = ''.join(kla_list[n])
+    	    buff = parse_kla(list_to_str_kla)
+    	    for cve in buff:
+                list_to_str_ip = ', '.join(ip_list[n])
+                for IP in ip_list[n]:
+                    print(f'На IP: {IP} присутствует:', file = fout)
+                    cve_replace(cve, IP)
+        print(f'Done!')
+        fout.close()
+    except:
+        print("Error!\nNo such file: %s " % sys.argv[1])
+        fout.close()
